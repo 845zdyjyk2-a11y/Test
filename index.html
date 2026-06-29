@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#13251c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Deutsch Quiz" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Deutsch Quiz</title>
+  <style>
+    :root {
+      --ink:#1e2b24; --muted:#67726b; --line:#dce5df; --paper:#f5f7f5;
+      --card:#ffffff; --accent:#246a42; --accent-soft:#e7f4eb; --danger:#a53232;
+      --danger-soft:#fbeded; --shadow:0 10px 28px rgba(25,48,34,.08); --radius:18px;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+    button, input, select, textarea { font:inherit; }
+    button { border:0; cursor:pointer; }
+    .app { max-width:760px; margin:0 auto; min-height:100vh; padding:calc(20px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom)); }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.03em; }
+    .mark { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:var(--accent); color:#fff; font-size:18px; }
+    .tiny { color:var(--muted); font-size:12px; }
+    .page-title { margin:0 0 4px; font-size:25px; letter-spacing:-.04em; }
+    .sub { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin:14px 0; }
+    .grid { display:grid; gap:12px; }
+    .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .stat { padding:14px; border-radius:14px; background:#f4f8f5; }
+    .stat b { display:block; font-size:24px; line-height:1; margin-bottom:5px; }
+    .stat span { color:var(--muted); font-size:12px; }
+    .section-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin:20px 0 8px; }
+    .section-head h2 { font-size:17px; margin:0; letter-spacing:-.02em; }
+    .field { display:grid; gap:7px; margin:12px 0; }
+    .field label { font-size:13px; font-weight:700; }
+    .field small { color:var(--muted); font-size:12px; line-height:1.4; }
+    input, select, textarea { width:100%; border:1px solid #cbd7cf; border-radius:12px; padding:12px 13px; background:#fff; color:var(--ink); outline:none; }
+    input:focus, select:focus, textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(36,106,66,.14); }
+    textarea { min-height:94px; resize:vertical; }
+    .btn { padding:12px 15px; border-radius:12px; background:var(--accent); color:#fff; font-weight:800; }
+    .btn:active { transform:translateY(1px); }
+    .btn.ghost { background:#edf2ee; color:var(--ink); }
+    .btn.line { background:#fff; color:var(--accent); border:1px solid #b8d4c1; }
+    .btn.danger { background:var(--danger); }
+    .btn.small { padding:8px 10px; font-size:13px; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .tag-list { display:flex; flex-wrap:wrap; gap:7px; }
+    .tag { display:inline-flex; align-items:center; gap:5px; border:1px solid #cfe0d3; border-radius:999px; padding:6px 9px; color:#28593b; background:#f5fbf6; font-size:12px; font-weight:700; }
+    .tag.selectable { cursor:pointer; }
+    .tag.selected { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .tag input { width:auto; accent-color:var(--accent); margin:0; }
+    .nav { position:fixed; z-index:5; left:0; right:0; bottom:0; background:rgba(255,255,255,.96); backdrop-filter:blur(14px); border-top:1px solid var(--line); padding:7px max(14px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-right)); }
+    .nav-inner { max-width:760px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+    .nav button { background:transparent; color:var(--muted); padding:9px 4px; font-size:11px; border-radius:10px; }
+    .nav button.active { color:var(--accent); background:var(--accent-soft); font-weight:800; }
+    .nav .ico { display:block; font-size:17px; line-height:1.1; margin-bottom:2px; }
+    .word-row { border-top:1px solid var(--line); padding:14px 0; }
+    .word-row:first-child { border-top:0; padding-top:0; }
+    .word-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .word-de { font-size:17px; font-weight:800; letter-spacing:-.02em; }
+    .word-ko { margin-top:4px; font-size:14px; line-height:1.45; }
+    .word-meta { margin-top:7px; color:var(--muted); font-size:12px; }
+    .word-actions { display:flex; gap:6px; flex-shrink:0; }
+    .empty { text-align:center; padding:28px 12px; color:var(--muted); line-height:1.6; }
+    .quiz-shell { min-height:470px; display:flex; flex-direction:column; }
+    .progress { height:8px; border-radius:999px; background:#e7ece8; overflow:hidden; margin:10px 0 20px; }
+    .progress > i { display:block; height:100%; background:var(--accent); transition:width .25s; }
+    .quiz-mode { font-size:12px; color:var(--muted); font-weight:700; }
+    .prompt { margin:14px 0 9px; font-size:31px; font-weight:850; letter-spacing:-.055em; line-height:1.22; word-break:keep-all; }
+    .prompt .article-blank { color:var(--accent); letter-spacing:.02em; }
+    .hint { min-height:21px; margin:0 0 14px; color:var(--muted); font-size:13px; }
+    .feedback { margin-top:13px; border-radius:12px; padding:12px; line-height:1.45; }
+    .feedback.ok { background:var(--accent-soft); color:#1d5534; }
+    .feedback.no { background:var(--danger-soft); color:#7d2828; }
+    .answer-options { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .answer-options button { min-height:53px; font-size:17px; border-radius:12px; border:1px solid #cbd7cf; background:#fff; font-weight:800; }
+    .answer-options button.pick { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+    .answer-options button.good { border-color:var(--accent); background:var(--accent); color:#fff; }
+    .answer-options button.bad { border-color:var(--danger); background:var(--danger-soft); color:var(--danger); }
+    .quiz-controls { margin-top:auto; display:flex; gap:8px; padding-top:18px; }
+    .quiz-controls .btn { flex:1; }
+    .notice { padding:12px 13px; background:#fff9e9; border:1px solid #f0d99c; border-radius:12px; color:#765711; font-size:13px; line-height:1.45; }
+    .pill-select { display:flex; gap:7px; flex-wrap:wrap; }
+    .pill-select button { border:1px solid #cad8ce; background:#fff; border-radius:999px; padding:8px 10px; color:#526057; font-size:13px; font-weight:700; }
+    .pill-select button.selected { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .modal { position:fixed; inset:0; z-index:10; display:flex; align-items:flex-end; background:rgba(15,25,19,.42); }
+    .modal.hidden { display:none; }
+    .sheet { width:100%; max-height:91vh; overflow:auto; background:#fff; border-radius:22px 22px 0 0; padding:18px 16px calc(24px + env(safe-area-inset-bottom)); }
+    .sheet-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .sheet-head h2 { margin:0; font-size:20px; }
+    .close { width:36px; height:36px; background:#edf2ee; border-radius:50%; font-size:20px; }
+    .result-score { text-align:center; padding:15px 5px 7px; }
+    .result-score b { display:block; font-size:48px; letter-spacing:-.07em; color:var(--accent); }
+    .result-score span { color:var(--muted); }
+    .mini-list { display:grid; gap:8px; }
+    .mini { background:#f7f9f7; border-radius:12px; padding:11px 12px; font-size:13px; }
+    .mini strong { display:block; font-size:15px; margin-bottom:3px; }
+    .hidden { display:none!important; }
+    .divider { height:1px; background:var(--line); margin:18px 0; }
+    .switch-line { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 0; }
+    .switch-line input { width:auto; transform:scale(1.25); accent-color:var(--accent); }
+    .inline-help { color:var(--muted); font-size:12px; margin:8px 0 0; }
+    @media (max-width:430px) { .grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); } .prompt { font-size:28px; } }
+  </style>
+</head>
+<body>
+  <main class="app" id="app"></main>
+  <nav class="nav" aria-label="앱 메뉴">
+    <div class="nav-inner" id="nav"></div>
+  </nav>
+  <div class="modal hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+(() => {
+  const DB_KEY = 'deutschQuizData.v1';
+  const SESSION_KEY = 'deutschQuizSession.v1';
+
+  const sampleWords = [
+    { german:'brechen', korean:'깨다, 부러뜨리다', type:'동사', tags:['brechen','기본동사'], gender:'', plural:'', note:'bricht – brach – hat gebrochen', example:'Das Glas bricht.' },
+    { german:'abbrechen', korean:'중단하다, 부러뜨리다', type:'동사', tags:['brechen','분리동사'], gender:'', plural:'', note:'bricht ab – brach ab – hat abgebrochen', example:'Wir brechen das Gespräch ab.' },
+    { german:'einbrechen', korean:'침입하다, 부서지다', type:'동사', tags:['brechen','분리동사'], gender:'', plural:'', note:'bricht ein – brach ein – ist eingebrochen', example:'Bei mir wurde eingebrochen.' },
+    { german:'unterbrechen', korean:'중단시키다, 방해하다', type:'동사', tags:['brechen','비분리동사'], gender:'', plural:'', note:'unterbricht – unterbrach – hat unterbrochen', example:'Bitte unterbrich mich nicht.' },
+    { german:'zerbrechen', korean:'부서지다, 깨지다', type:'동사', tags:['brechen','비분리동사'], gender:'', plural:'', note:'zerbricht – zerbrach – ist zerbrochen', example:'Die Vase ist zerbrochen.' },
+    { german:'ausbrechen', korean:'탈출하다, 발생하다', type:'동사', tags:['brechen','분리동사'], gender:'', plural:'', note:'bricht aus – brach aus – ist ausgebrochen', example:'Ein Feuer ist ausgebrochen.' },
+    { german:'fallen', korean:'떨어지다', type:'동사', tags:['fallen','기본동사'], gender:'', plural:'', note:'fällt – fiel – ist gefallen', example:'Das Glas ist auf den Boden gefallen.' },
+    { german:'auffallen', korean:'눈에 띄다, 알아차리다', type:'동사', tags:['fallen','분리동사'], gender:'', plural:'', note:'fällt auf – fiel auf – ist aufgefallen', example:'Der Fehler ist mir aufgefallen.' },
+    { german:'einfallen', korean:'생각나다', type:'동사', tags:['fallen','분리동사','Dativ'], gender:'', plural:'', note:'fällt ein – fiel ein – ist eingefallen', example:'Das ist mir gerade eingefallen.' },
+    { german:'ausfallen', korean:'취소되다, 고장 나다', type:'동사', tags:['fallen','분리동사'], gender:'', plural:'', note:'fällt aus – fiel aus – ist ausgefallen', example:'Der Unterricht fällt heute aus.' },
+    { german:'gefallen', korean:'마음에 들다', type:'동사', tags:['fallen','Dativ'], gender:'', plural:'', note:'gefällt – gefiel – hat gefallen', example:'Das Kleid gefällt mir.' },
+    { german:'umfallen', korean:'넘어지다', type:'동사', tags:['fallen','분리동사'], gender:'', plural:'', note:'fällt um – fiel um – ist umgefallen', example:'Der Stuhl ist umgefallen.' },
+    { german:'wegfallen', korean:'없어지다, 제외되다', type:'동사', tags:['fallen','분리동사'], gender:'', plural:'', note:'fällt weg – fiel weg – ist weggefallen', example:'Die Gebühr fällt weg.' },
+    { german:'Blüte', korean:'꽃, 꽃이 핌', type:'명사', tags:['B1.3','식물'], gender:'die', plural:'Blüten', note:'', example:'Die Blüte ist schön.' },
+    { german:'Vorschlag', korean:'제안', type:'명사', tags:['B1.3'], gender:'der', plural:'Vorschläge', note:'', example:'Das ist ein guter Vorschlag.' },
+    { german:'Bedingung', korean:'조건', type:'명사', tags:['B1.3'], gender:'die', plural:'Bedingungen', note:'', example:'Unter einer Bedingung stimme ich zu.' },
+    { german:'Verhalten', korean:'행동, 태도', type:'명사', tags:['B1.3'], gender:'das', plural:'Verhalten', note:'', example:'Sein Verhalten war seltsam.' }
+  ];
+
+  const state = {
+    view: 'home',
+    selectedTags: [],
+    currentQuiz: null,
+    wordFilter: '',
+    editId: null
+  };
+
+  function uid() { return String(Date.now()) + Math.random().toString(36).slice(2,8); }
+  function deepCopy(v) { return JSON.parse(JSON.stringify(v)); }
+  function loadData() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(DB_KEY));
+      if (parsed && Array.isArray(parsed.words)) return parsed;
+    } catch(e) {}
+    const data = { words: sampleWords.map(w => ({ id:uid(), createdAt:Date.now(), correct:0, wrong:0, ...w })), settings:{ examSize:10 } };
+    localStorage.setItem(DB_KEY, JSON.stringify(data));
+    return data;
+  }
+  let data = loadData();
+  function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
+  function esc(v='') { return String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function normalize(s='') { return String(s).toLocaleLowerCase('de-DE').replace(/[\s.,!?;:()\[\]{}'"“”‘’\-–—]/g,'').trim(); }
+  function parseTags(input='') { return String(input).split(',').map(x=>x.trim()).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i); }
+  function allTags() { return [...new Set(data.words.flatMap(w => w.tags || []))].sort((a,b)=>a.localeCompare(b,'ko')); }
+  function displayGerman(w, withArticle=false) { return (withArticle && w.gender ? `${w.gender} ${w.german}` : w.german); }
+  function allAltAnswers(value='') { return String(value).split('|').map(v => normalize(v)).filter(Boolean); }
+  function isMatch(input, expected) { const ans=normalize(input); return allAltAnswers(expected).some(x => x===ans); }
+  function wordAccuracy(w) { const total=(w.correct||0)+(w.wrong||0); return total ? Math.round((w.correct||0)/total*100) : null; }
+  function getModeName(mode) { return ({deko:'독일어 → 한국어', kode:'한국어 → 독일어', gender:'명사 성 맞히기', plural:'복수형 쓰기'})[mode] || mode; }
+
+  const navItems = [
+    ['home','⌂','홈'], ['quiz','◈','시험'], ['words','☷','단어'], ['data','⇅','데이터']
+  ];
+  function renderNav() {
+    document.getElementById('nav').innerHTML = navItems.map(([id,ico,label])=>`<button data-nav="${id}" class="${state.view===id?'active':''}"><span class="ico">${ico}</span>${label}</button>`).join('');
+    document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{ state.view=b.dataset.nav; state.currentQuiz=null; render(); }));
+  }
+  function render() { const app=document.getElementById('app'); app.innerHTML = ({ home:homeView, quiz:quizView, words:wordsView, data:dataView })[state.view](); bindView(); renderNav(); }
+
+  function homeView() {
+    const total=data.words.length;
+    const wrong=data.words.filter(w=>(w.wrong||0)>(w.correct||0)).length;
+    const nouns=data.words.filter(w=>w.type==='명사').length;
+    const tags=allTags();
+    return `
+      <header><div class="brand"><div class="mark">D</div><div>Deutsch Quiz<div class="tiny">내 단어장 · 내 방식의 시험</div></div></div><button class="btn ghost small" data-open-add>＋ 단어</button></header>
+      <h1 class="page-title">어근·태그별로 외워.</h1>
+      <p class="sub">단어 하나에 여러 태그를 붙이면 <b>brechen만</b>, <b>fallen만</b>, 혹은 전부 섞어서 바로 시험 볼 수 있다.</p>
+      <section class="grid three card">
+        <div class="stat"><b>${total}</b><span>전체 단어</span></div>
+        <div class="stat"><b>${nouns}</b><span>명사</span></div>
+        <div class="stat"><b>${wrong}</b><span>우선 복습</span></div>
+      </section>
+      <section class="card">
+        <div class="section-head"><h2>바로 시험</h2><button class="btn line small" data-nav="quiz">설정하기</button></div>
+        <div class="actions">
+          <button class="btn" data-quick="deko">독일어 → 한국어</button>
+          <button class="btn ghost" data-quick="kode">한국어 → 독일어</button>
+        </div>
+        <div class="divider"></div>
+        <div class="tiny">자주 쓰는 태그</div>
+        <div class="tag-list" style="margin-top:8px;">${tags.length?tags.slice(0,12).map(t=>`<button class="tag selectable" data-quick-tag="${esc(t)}"># ${esc(t)}</button>`).join(''):'<span class="tiny">단어를 추가하면 태그가 여기에 나온다.</span>'}</div>
+      </section>
+      <section class="card">
+        <div class="section-head"><h2>현재 들어 있는 예시</h2><span class="tiny">처음 테스트용</span></div>
+        <div class="tag-list">${['brechen','fallen','B1.3'].map(t=>`<span class="tag"># ${t} · ${data.words.filter(w=>(w.tags||[]).includes(t)).length}</span>`).join('')}</div>
+        <p class="inline-help">예시 단어는 수정·삭제해도 되고, 네가 외울 단어로 전부 바꿔도 된다.</p>
+      </section>`;
+  }
+
+  function tagPicker(selected=[]) {
+    const tags=allTags();
+    return `<div class="tag-list" id="tag-picker">${tags.length?tags.map(t=>`<label class="tag selectable ${selected.includes(t)?'selected':''}"><input type="checkbox" value="${esc(t)}" ${selected.includes(t)?'checked':''}> # ${esc(t)}</label>`).join(''):'<span class="tiny">아직 태그가 없다.</span>'}</div>`;
+  }
+
+  function quizView() {
+    if (state.currentQuiz) return activeQuizView();
+    const tags=allTags();
+    return `
+      <header><div class="brand"><div class="mark">?</div><div>시험 설정<div class="tiny">태그를 여러 개 골라 섞을 수 있음</div></div></div></header>
+      <section class="card">
+        <div class="field"><label>시험 방식</label><div class="pill-select" id="mode-picker">
+          ${[['deko','독일어 → 한국어'],['kode','한국어 → 독일어'],['gender','명사 성'],['plural','복수형']].map(([id,l],i)=>`<button data-mode="${id}" class="${i===0?'selected':''}">${l}</button>`).join('')}
+        </div></div>
+        <div class="field"><label>태그 선택 <span class="tiny">선택 안 하면 전체 단어</span></label>${tagPicker(state.selectedTags)}</div>
+        <div class="field"><label for="quiz-count">문제 수</label><select id="quiz-count"><option value="5">5개</option><option value="10" selected>10개</option><option value="20">20개</option><option value="999">가능한 만큼</option></select></div>
+        <div class="switch-line"><div><b>오답 우선</b><div class="tiny">틀린 횟수가 많은 단어를 더 자주 출제</div></div><input type="checkbox" id="wrong-first"></div>
+        <div class="switch-line"><div><b>오답만 시험</b><div class="tiny">한 번 이상 틀린 단어만 출제</div></div><input type="checkbox" id="wrong-only"></div>
+        <button class="btn" style="width:100%;margin-top:14px" id="start-quiz">시험 시작</button>
+      </section>
+      <section class="notice">한국어 뜻이나 독일어 정답을 여러 방식으로 인정하고 싶으면 단어 입력 시 <b>|</b> 로 나눠 적으면 된다. 예: <code>침입하다|부서지다</code></section>`;
+  }
+
+  function buildQuiz(mode, tags, count, wrongFirst, wrongOnly) {
+    let pool=data.words.filter(w=>{
+      const hasTags=!tags.length || tags.some(t=>(w.tags||[]).includes(t));
+      const typeOk=(mode==='gender'||mode==='plural') ? w.type==='명사' : true;
+      const wrongOk=!wrongOnly || (w.wrong||0)>0;
+      const required = mode==='plural' ? Boolean(w.plural) : mode==='gender' ? ['der','die','das'].includes(w.gender) : true;
+      return hasTags && typeOk && wrongOk && required;
+    });
+    if (wrongFirst) pool = pool.sort((a,b)=>((b.wrong||0)-(b.correct||0))-((a.wrong||0)-(a.correct||0)) + (Math.random()-.5));
+    else pool=shuffle(pool);
+    const max=count===999 ? pool.length : Math.min(count,pool.length);
+    return { mode, tags, questions:pool.slice(0,max).map(w=>w.id), index:0, answers:[], currentPick:'', checked:false, input:'', startedAt:Date.now() };
+  }
+  function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
+  function activeQuizView() {
+    const q=state.currentQuiz; const word=data.words.find(w=>w.id===q.questions[q.index]);
+    if (!word) { state.currentQuiz=null; return quizView(); }
+    const mode=q.mode; const checked=q.checked;
+    let prompt='', hint='', inputHTML='';
+    if (mode==='deko') { prompt=esc(word.german); hint=word.type + (word.note?` · ${esc(word.note)}`:''); inputHTML=`<input id="answer-input" autocomplete="off" autocapitalize="none" placeholder="한국어 뜻 입력" value="${esc(q.input)}" ${checked?'disabled':''}>`; }
+    if (mode==='kode') { prompt=esc(word.korean); hint=word.type + (word.note?` · ${esc(word.note)}`:''); inputHTML=`<input id="answer-input" autocomplete="off" autocapitalize="none" placeholder="독일어 입력" value="${esc(q.input)}" ${checked?'disabled':''}>`; }
+    if (mode==='plural') { prompt=`<span class="article-blank">${esc(word.gender)}</span> ${esc(word.german)}`; hint='복수형을 입력해.'; inputHTML=`<input id="answer-input" autocomplete="off" autocapitalize="none" placeholder="복수형 입력" value="${esc(q.input)}" ${checked?'disabled':''}>`; }
+    if (mode==='gender') {
+      prompt=`<span class="article-blank">___</span> ${esc(word.german)}`;
+      hint='이 명사의 성을 골라.';
+      inputHTML=`<div class="answer-options" id="gender-options">${['der','die','das'].map(g=>{
+        let cls=''; if(checked&&g===word.gender) cls='good'; else if(checked&&g===q.currentPick&&g!==word.gender) cls='bad'; else if(!checked&&g===q.currentPick) cls='pick';
+        return `<button data-gender="${g}" class="${cls}" ${checked?'disabled':''}>${g}</button>`;
+      }).join('')}</div>`;
+    }
+    const feedback = checked ? getFeedback(word,q) : '';
+    return `
+      <header><button class="btn ghost small" data-end-quiz>× 끝내기</button><div class="tiny">${q.index+1} / ${q.questions.length}</div></header>
+      <section class="card quiz-shell">
+        <div class="quiz-mode">${getModeName(mode)} ${q.tags.length?`· # ${q.tags.join(' # ')}`:''}</div>
+        <div class="progress"><i style="width:${Math.round(q.index/q.questions.length*100)}%"></i></div>
+        <div class="prompt">${prompt}</div>
+        <p class="hint">${hint}</p>
+        ${inputHTML}
+        ${feedback}
+        <div class="quiz-controls">
+          ${checked?`<button class="btn" id="next-question">${q.index===q.questions.length-1?'결과 보기':'다음 문제'}</button>`:`<button class="btn" id="check-answer">채점</button>`}
+        </div>
+      </section>
+      ${word.example || word.note ? `<section class="card"><div class="tiny">메모 / 예문</div>${word.note?`<div class="word-meta" style="font-size:14px;color:var(--ink);margin-top:6px">${esc(word.note)}</div>`:''}${word.example?`<div class="word-meta" style="font-size:14px;margin-top:8px">${esc(word.example)}</div>`:''}</section>`:''}`;
+  }
+  function getFeedback(word,q) {
+    const result=q.answers[q.answers.length-1];
+    if (!result) return '';
+    let answer='';
+    if(q.mode==='deko') answer=word.korean;
+    if(q.mode==='kode') answer=word.german;
+    if(q.mode==='gender') answer=`${word.gender} ${word.german}`;
+    if(q.mode==='plural') answer=word.plural;
+    return `<div class="feedback ${result.correct?'ok':'no'}"><b>${result.correct?'정답':'오답'}</b><br>정답: <strong>${esc(answer)}</strong>${word.example?`<br><span class="tiny" style="color:inherit">${esc(word.example)}</span>`:''}</div>`;
+  }
+  function evaluateCurrent() {
+    const q=state.currentQuiz; const word=data.words.find(w=>w.id===q.questions[q.index]);
+    if (!word || q.checked) return;
+    let correct=false, given='';
+    if(q.mode==='gender') { given=q.currentPick; correct=given===word.gender; }
+    if(q.mode==='deko') { given=q.input; correct=isMatch(given,word.korean); }
+    if(q.mode==='kode') { given=q.input; correct=isMatch(given,word.german); }
+    if(q.mode==='plural') { given=q.input; correct=isMatch(given,word.plural); }
+    if(!given) return;
+    q.checked=true;
+    q.answers.push({ wordId:word.id, correct, given, at:Date.now() });
+    if(correct) word.correct=(word.correct||0)+1; else word.wrong=(word.wrong||0)+1;
+    saveData();
+    render();
+  }
+  function nextQuestion() {
+    const q=state.currentQuiz;
+    if(q.index >= q.questions.length-1) { openQuizResult(); return; }
+    q.index++; q.checked=false; q.input=''; q.currentPick=''; render();
+  }
+  function openQuizResult() {
+    const q=state.currentQuiz; const correct=q.answers.filter(a=>a.correct).length;
+    const incorrect=q.answers.filter(a=>!a.correct);
+    openSheet(`
+      <div class="sheet-head"><h2>시험 결과</h2><button class="close" data-close-sheet>×</button></div>
+      <div class="result-score"><b>${correct}/${q.questions.length}</b><span>${getModeName(q.mode)} · 정답률 ${q.questions.length?Math.round(correct/q.questions.length*100):0}%</span></div>
+      ${incorrect.length?`<div class="divider"></div><div class="section-head"><h2>다시 볼 오답</h2><span class="tiny">${incorrect.length}개</span></div><div class="mini-list">${incorrect.map(a=>{const w=data.words.find(x=>x.id===a.wordId);return `<div class="mini"><strong>${esc(displayGerman(w, q.mode==='gender'))}</strong><span>${esc(w.korean)} · 입력: ${esc(a.given||'—')}</span></div>`}).join('')}</div>`:`<div class="notice" style="margin-top:15px">전부 맞았다. 오답 기록은 남기지 않았다.</div>`}
+      <div class="actions"><button class="btn" data-new-same>같은 설정으로 다시</button><button class="btn ghost" data-go-home>홈으로</button></div>`);
+  }
+
+  function wordsView() {
+    const filter=state.wordFilter.trim().toLocaleLowerCase('de-DE');
+    const list=data.words.filter(w=>!filter || [w.german,w.korean,w.type,(w.tags||[]).join(' '),w.gender,w.plural,w.note,w.example].join(' ').toLocaleLowerCase('de-DE').includes(filter));
+    return `
+      <header><div class="brand"><div class="mark">＋</div><div>내 단어장<div class="tiny">수정 · 태그 · 오답 기록</div></div></div><button class="btn small" data-open-add>단어 추가</button></header>
+      <div class="field"><input id="word-search" placeholder="독일어, 뜻, 태그로 검색" value="${esc(state.wordFilter)}"></div>
+      <div class="card">
+        <div class="section-head"><h2>${list.length}개 단어</h2><button class="btn line small" data-open-bulk>여러 개 붙여넣기</button></div>
+        ${list.length?list.map(w=>wordRow(w)).join(''):'<div class="empty">찾는 단어가 없다.<br>새 단어를 추가하거나 검색어를 바꿔봐.</div>'}
+      </div>`;
+  }
+  function wordRow(w) {
+    const acc=wordAccuracy(w); return `<article class="word-row"><div class="word-top"><div><div class="word-de">${esc(displayGerman(w,true))}</div><div class="word-ko">${esc(w.korean)}</div><div class="word-meta">${esc(w.type||'품사 미지정')}${w.plural?` · 복수 ${esc(w.plural)}`:''}${acc!==null?` · 정답률 ${acc}%`:''}</div></div><div class="word-actions"><button class="btn ghost small" data-edit="${w.id}">수정</button><button class="btn ghost small" data-delete="${w.id}">삭제</button></div></div>${w.tags?.length?`<div class="tag-list" style="margin-top:9px">${w.tags.map(t=>`<span class="tag"># ${esc(t)}</span>`).join('')}</div>`:''}${w.note||w.example?`<div class="word-meta">${w.note?esc(w.note):''}${w.note&&w.example?' · ':''}${w.example?esc(w.example):''}</div>`:''}</article>`;
+  }
+
+  function dataView() {
+    return `
+      <header><div class="brand"><div class="mark">⇅</div><div>데이터<div class="tiny">단어는 이 기기에만 저장됨</div></div></div></header>
+      <section class="card"><h2 style="margin:0 0 8px;font-size:17px">백업</h2><p class="sub">아이폰 브라우저 데이터가 삭제되면 단어장도 지워질 수 있다. 단어를 많이 넣기 시작하면 가끔 JSON 백업을 내려받아 두는 게 안전하다.</p><div class="actions"><button class="btn" id="export-json">JSON 내보내기</button><label class="btn ghost" for="import-json">JSON 가져오기</label><input class="hidden" type="file" id="import-json" accept="application/json"></div></section>
+      <section class="card"><h2 style="margin:0 0 8px;font-size:17px">초기화</h2><p class="sub">현재 단어와 기록을 모두 지우고, 처음 예시 단어로 되돌린다.</p><button class="btn danger" id="reset-data">전체 초기화</button></section>
+      <section class="notice">홈 화면 앱으로 쓰려면 이 파일들을 웹에 올린 뒤 Safari에서 열어 <b>공유 → 홈 화면에 추가</b>를 누르면 된다. 데이터는 기기별로 따로 저장된다.</section>`;
+  }
+
+  function addEditSheet(id=null) {
+    const w=id?data.words.find(x=>x.id===id):{german:'',korean:'',type:'동사',tags:[],gender:'',plural:'',note:'',example:''};
+    openSheet(`
+      <div class="sheet-head"><h2>${id?'단어 수정':'단어 추가'}</h2><button class="close" data-close-sheet>×</button></div>
+      <form id="word-form">
+        <div class="field"><label>독일어 표제어</label><input name="german" required placeholder="예: einbrechen" value="${esc(w.german)}"><small>명사는 관사 없이 입력. 예: <b>Blüte</b></small></div>
+        <div class="field"><label>한국어 뜻</label><input name="korean" required placeholder="예: 침입하다, 부서지다" value="${esc(w.korean)}"><small>둘 이상의 정답을 허용하려면 <b>|</b> 로 구분. 예: 침입하다|부서지다</small></div>
+        <div class="grid two"><div class="field"><label>품사</label><select name="type">${['동사','명사','형용사','부사','표현','기타'].map(x=>`<option ${w.type===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>성 <span class="tiny">명사만</span></label><select name="gender"><option value="">—</option>${['der','die','das'].map(x=>`<option value="${x}" ${w.gender===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+        <div class="field"><label>태그</label><input name="tags" placeholder="예: brechen, 분리동사, B1.3" value="${esc((w.tags||[]).join(', '))}"><small>쉼표로 나누기. 한 단어에 태그를 여러 개 붙일 수 있음.</small></div>
+        <div class="field"><label>복수형 <span class="tiny">명사만</span></label><input name="plural" placeholder="예: Blüten" value="${esc(w.plural||'')}"></div>
+        <div class="field"><label>메모 / 활용형</label><input name="note" placeholder="예: bricht ein – brach ein – ist eingebrochen" value="${esc(w.note||'')}"></div>
+        <div class="field"><label>예문</label><textarea name="example" placeholder="예: Bei mir wurde eingebrochen.">${esc(w.example||'')}</textarea></div>
+        <div class="actions"><button class="btn" type="submit">저장</button>${id?`<button class="btn ghost" type="button" data-copy-word="${id}">복제</button>`:''}</div>
+      </form>`);
+    document.getElementById('word-form').addEventListener('submit',e=>{
+      e.preventDefault(); const f=new FormData(e.currentTarget); const obj={
+        german:String(f.get('german')).trim(), korean:String(f.get('korean')).trim(), type:String(f.get('type')), tags:parseTags(f.get('tags')), gender:String(f.get('gender')), plural:String(f.get('plural')).trim(), note:String(f.get('note')).trim(), example:String(f.get('example')).trim()
+      };
+      if(!obj.german||!obj.korean) return;
+      if(id) { const old=data.words.find(x=>x.id===id); Object.assign(old,obj); }
+      else data.words.unshift({id:uid(),createdAt:Date.now(),correct:0,wrong:0,...obj});
+      saveData(); closeSheet(); render();
+    });
+    const copy=document.querySelector('[data-copy-word]'); if(copy) copy.addEventListener('click',()=>{ const clone=deepCopy(w); clone.id=uid(); clone.german=''; clone.correct=0; clone.wrong=0; data.words.unshift(clone); saveData(); closeSheet(); addEditSheet(clone.id); });
+  }
+
+  function bulkSheet() {
+    openSheet(`
+      <div class="sheet-head"><h2>여러 단어 붙여넣기</h2><button class="close" data-close-sheet>×</button></div>
+      <p class="sub">한 줄에 한 단어. 아래 순서로 <b>|</b> 로 나눠 붙여넣으면 된다.</p>
+      <div class="notice" style="margin-top:12px"><code>독일어 | 한국어 뜻 | 품사 | 태그1, 태그2 | 성 | 복수형 | 메모 | 예문</code><br><span class="tiny" style="color:inherit">뒤쪽 칸은 비워도 됨. 성은 der/die/das만 입력.</span></div>
+      <div class="field"><textarea id="bulk-input" placeholder="brechen | 깨다, 부러뜨리다 | 동사 | brechen, 기본동사 | | | bricht – brach – hat gebrochen | Das Glas bricht."></textarea></div>
+      <div class="actions"><button class="btn" id="import-bulk">추가하기</button></div>`);
+    document.getElementById('import-bulk').addEventListener('click',()=>{
+      const lines=document.getElementById('bulk-input').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean); let added=0;
+      lines.forEach(line=>{ const p=line.split('|').map(x=>x.trim()); if(!p[0]||!p[1]) return; data.words.unshift({ id:uid(),createdAt:Date.now(),correct:0,wrong:0,german:p[0],korean:p[1],type:p[2]||'기타',tags:parseTags(p[3]||''),gender:['der','die','das'].includes(p[4])?p[4]:'',plural:p[5]||'',note:p[6]||'',example:p.slice(7).join('|').trim()||'' }); added++; });
+      saveData(); closeSheet(); render(); alert(`${added}개 단어를 추가했어.`);
+    });
+  }
+
+  function openSheet(html) { document.getElementById('sheet').innerHTML=html; document.getElementById('modal').classList.remove('hidden'); bindSheet(); }
+  function closeSheet() { document.getElementById('modal').classList.add('hidden'); document.getElementById('sheet').innerHTML=''; }
+  function bindSheet() { document.querySelectorAll('[data-close-sheet]').forEach(x=>x.addEventListener('click',closeSheet)); }
+
+  function bindView() {
+    document.querySelectorAll('#app [data-nav]').forEach(b=>b.addEventListener('click',()=>{ state.view=b.dataset.nav; state.currentQuiz=null; render(); }));
+    document.querySelectorAll('[data-open-add]').forEach(b=>b.addEventListener('click',()=>addEditSheet()));
+    document.querySelectorAll('[data-open-bulk]').forEach(b=>b.addEventListener('click',bulkSheet));
+    document.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>addEditSheet(b.dataset.edit)));
+    document.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{ const w=data.words.find(x=>x.id===b.dataset.delete); if(w&&confirm(`“${w.german}”을(를) 삭제할까?`)){data.words=data.words.filter(x=>x.id!==w.id);saveData();render();} }));
+    const search=document.getElementById('word-search'); if(search) search.addEventListener('input',e=>{state.wordFilter=e.target.value;render(); document.getElementById('word-search')?.focus();});
+    document.querySelectorAll('[data-quick]').forEach(b=>b.addEventListener('click',()=>{state.view='quiz';render(); setTimeout(()=>{const m=document.querySelector(`[data-mode="${b.dataset.quick}"]`); if(m)m.click(); document.getElementById('start-quiz')?.click();},0);}));
+    document.querySelectorAll('[data-quick-tag]').forEach(b=>b.addEventListener('click',()=>{state.selectedTags=[b.dataset.quickTag];state.view='quiz';render();}));
+    const modePicker=document.getElementById('mode-picker'); if(modePicker) { let current='deko'; modePicker.addEventListener('click',e=>{const b=e.target.closest('[data-mode]'); if(!b)return; current=b.dataset.mode; modePicker.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b)); modePicker.dataset.mode=current;}); modePicker.dataset.mode=current; }
+    document.querySelectorAll('#tag-picker input').forEach(i=>i.addEventListener('change',()=>{state.selectedTags=[...document.querySelectorAll('#tag-picker input:checked')].map(x=>x.value); document.querySelectorAll('#tag-picker label').forEach(l=>l.classList.toggle('selected',l.querySelector('input').checked));}));
+    const start=document.getElementById('start-quiz'); if(start) start.addEventListener('click',()=>{const mode=document.getElementById('mode-picker').dataset.mode; const count=Number(document.getElementById('quiz-count').value); const q=buildQuiz(mode,state.selectedTags,count,document.getElementById('wrong-first').checked,document.getElementById('wrong-only').checked); if(!q.questions.length){alert('이 조건에 맞는 단어가 없다. 태그나 시험 방식을 바꿔봐.');return;} state.currentQuiz=q;render();});
+    const input=document.getElementById('answer-input'); if(input) input.addEventListener('input',e=>{state.currentQuiz.input=e.target.value;});
+    if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); document.getElementById('check-answer')?.click();}});
+    document.querySelectorAll('[data-gender]').forEach(b=>b.addEventListener('click',()=>{state.currentQuiz.currentPick=b.dataset.gender;render();}));
+    const check=document.getElementById('check-answer'); if(check) check.addEventListener('click',evaluateCurrent);
+    const next=document.getElementById('next-question'); if(next) next.addEventListener('click',nextQuestion);
+    document.querySelectorAll('[data-end-quiz]').forEach(b=>b.addEventListener('click',()=>{if(confirm('현재 시험을 끝낼까?')){state.currentQuiz=null;render();}}));
+    const exportBtn=document.getElementById('export-json'); if(exportBtn) exportBtn.addEventListener('click',()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`deutsch-quiz-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);});
+    const importFile=document.getElementById('import-json'); if(importFile) importFile.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||!Array.isArray(parsed.words)) throw new Error();if(!confirm(`${parsed.words.length}개 단어가 든 백업으로 현재 데이터를 덮어쓸까?`))return;data=parsed;saveData();render();alert('가져왔어.');}catch(err){alert('올바른 백업 JSON 파일이 아니다.');}});
+    const reset=document.getElementById('reset-data'); if(reset) reset.addEventListener('click',()=>{if(confirm('정말 전체 단어와 기록을 지울까?')){localStorage.removeItem(DB_KEY);data=loadData();render();}});
+  }
+
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeSheet();});
+  document.addEventListener('click',e=>{
+    if(e.target.matches('[data-close-sheet]')) closeSheet();
+    const same=e.target.closest('[data-new-same]'); if(same){ closeSheet(); const old=state.currentQuiz; const q=buildQuiz(old.mode,old.tags,old.questions.length,false,false); state.currentQuiz=q; render(); }
+    const home=e.target.closest('[data-go-home]'); if(home){closeSheet(); state.currentQuiz=null;state.view='home';render();}
+  });
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  render();
+})();
+</script>
+</body>
+</html>

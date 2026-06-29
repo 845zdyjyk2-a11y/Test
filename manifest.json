@@ -1,0 +1,13 @@
+{
+  "name": "Deutsch Quiz",
+  "short_name": "Deutsch Quiz",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7f5",
+  "theme_color": "#13251c",
+  "lang": "ko",
+  "description": "태그로 묶어 시험 보는 개인 독일어 단어장",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
+  ]
+}
